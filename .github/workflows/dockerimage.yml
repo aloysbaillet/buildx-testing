@@ -27,7 +27,7 @@ jobs:
           . \
           -f imageA/Dockerfile \
           -t aloysbaillet/buildx-testing-image-a:0 \
-          --cache-from=type=local,src=docker-cache
+          --cache-from=type=local,src=docker-cache \
           --cache-to=type=local,mode=max,dest=docker-cache-a \
           --load
     -
