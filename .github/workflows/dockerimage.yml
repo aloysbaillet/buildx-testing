@@ -33,6 +33,15 @@ jobs:
       with:
         name: docker-cache
         path: docker-cache
+    -
+      name: Save docker image for downstream
+      run: docker save aloysbaillet/buildx-testing-image-a:0 | gzip -c > aloysbaillet-buildx-testing-image-a-0.tar.gz
+    -
+      name: Upload image
+      uses: actions/upload-artifact@v1
+      with:
+        name: docker-image
+        path: aloysbaillet-buildx-testing-image-a-0.tar.gz
 
   build_imageB:
  
@@ -55,12 +64,17 @@ jobs:
       with:
         name: docker-cache
     -
+      name: Download docker image
+      uses: actions/download-artifact@v1
+      with:
+        name: docker-image
+    -
       name: Run Buildx
       run: |
+        gunzip -c docker-image/aloysbaillet-buildx-testing-image-a-0.tar.gz | docker load
         docker buildx build \
           . \
           -f imageB/Dockerfile \
           -t aloysbaillet/buildx-testing-image-b:0 \
           --cache-to=type=local,mode=max,dest=docker-cache \
           --load
-      
