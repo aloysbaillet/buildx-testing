@@ -1,0 +1,54 @@
+name: Docker Image CI
+
+on: [push]
+
+jobs:
+
+  build_imageA:
+ 
+    runs-on: ubuntu-latest
+ 
+    steps:
+    -
+      name: Checkout
+      uses: actions/checkout@v1
+    -
+      name: Set up Docker Buildx
+      id: buildx
+      uses: crazy-max/ghaction-docker-buildx@master
+      with:
+        version: latest
+    -
+      name: Run Buildx
+      run: |
+        docker buildx build \
+          . \
+          -f imageA/Dockerfile \
+          -t aloysbaillet/buildx-testing-image-a:0 \
+          --cache-to=type=local,mode=max,dest=/tmp/bcache \
+          --load
+  
+  build_imageB:
+ 
+    runs-on: ubuntu-latest
+ 
+    steps:
+    -
+      name: Checkout
+      uses: actions/checkout@v1
+    -
+      name: Set up Docker Buildx
+      id: buildx
+      uses: crazy-max/ghaction-docker-buildx@master
+      with:
+        version: latest
+    -
+      name: Run Buildx
+      run: |
+        docker buildx build \
+          . \
+          -f imageB/Dockerfile \
+          -t aloysbaillet/buildx-testing-image-b:0 \
+          --cache-to=type=local,mode=max,dest=/tmp/bcache \
+          --load
+      
