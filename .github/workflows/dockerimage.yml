@@ -21,18 +21,21 @@ jobs:
     -
       name: Run Buildx
       run: |
+        curl --location https://github.com/aloysbaillet/buildx-testing/suites/244631830/artifacts/67804 -o docker-cache.zip
+        unzip docker-cache.zip
         docker buildx build \
           . \
           -f imageA/Dockerfile \
           -t aloysbaillet/buildx-testing-image-a:0 \
-          --cache-to=type=local,mode=max,dest=docker-cache \
+          --cache-from=type=local,src=
+          --cache-to=type=local,mode=max,dest=docker-cache-a \
           --load
     -
       name: Upload cache
       uses: actions/upload-artifact@v1
       with:
-        name: docker-cache
-        path: docker-cache
+        name: docker-cache-a
+        path: docker-cache-a
     -
       name: Save docker image for downstream
       run: docker save aloysbaillet/buildx-testing-image-a:0 | gzip -c > aloysbaillet-buildx-testing-image-a-0.tar.gz
@@ -62,7 +65,7 @@ jobs:
       name: Download docker cache
       uses: actions/download-artifact@v1
       with:
-        name: docker-cache
+        name: docker-cache-a
     -
       name: Download docker image
       uses: actions/download-artifact@v1
@@ -76,5 +79,6 @@ jobs:
           . \
           -f imageB/Dockerfile \
           -t aloysbaillet/buildx-testing-image-b:0 \
-          --cache-to=type=local,mode=max,dest=docker-cache \
+          --cache-from=type=local,src=docker-cache-a \
+          --cache-to=type=local,mode=max,dest=docker-cache-b \
           --load
