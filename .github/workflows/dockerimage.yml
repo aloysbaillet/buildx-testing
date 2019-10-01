@@ -23,28 +23,32 @@ jobs:
       run: |
         curl --location https://github.com/aloysbaillet/buildx-testing/suites/244631830/artifacts/67804 -o docker-cache.zip
         unzip docker-cache.zip
+        # buildx-testing-image-a
         docker buildx build \
           . \
-          -f imageA/Dockerfile \
           -t aloysbaillet/buildx-testing-image-a:0 \
+          --target=buildx-testing-image-a \
           --cache-from=type=local,src=docker-cache \
           --cache-to=type=local,mode=max,dest=docker-cache-a \
           --load
+        # buildx-testing-image-a-ccache
+        docker buildx build \
+          . \
+          --target=buildx-testing-image-a-ccache \
+          --platform=local \
+          -o .
     -
-      name: Upload cache
+      name: Upload docker-cache
       uses: actions/upload-artifact@v1
       with:
         name: docker-cache-a
         path: docker-cache-a
     -
-      name: Save docker image for downstream
-      run: docker save aloysbaillet/buildx-testing-image-a:0 | gzip -c > aloysbaillet-buildx-testing-image-a-0.tar.gz
-    -
-      name: Upload image
+      name: Upload ccache
       uses: actions/upload-artifact@v1
       with:
-        name: docker-image
-        path: aloysbaillet-buildx-testing-image-a-0.tar.gz
+        name: ccache
+        path: ccache/ccache.tar.gz
 
   build_imageB:
  
@@ -67,18 +71,19 @@ jobs:
       with:
         name: docker-cache-a
     -
-      name: Download docker image
-      uses: actions/download-artifact@v1
-      with:
-        name: docker-image
-    -
       name: Run Buildx
       run: |
-        gunzip -c docker-image/aloysbaillet-buildx-testing-image-a-0.tar.gz | docker load
+        # buildx-testing-image-b
         docker buildx build \
           . \
-          -f imageB/Dockerfile \
           -t aloysbaillet/buildx-testing-image-b:0 \
+          --target=buildx-testing-image-b \
           --cache-from=type=local,src=docker-cache-a \
-          --cache-to=type=local,mode=max,dest=docker-cache-b \
+          --cache-to=type=local,mode=max,dest=docker-cache-b
           --load
+    -
+      name: Upload docker-cache
+      uses: actions/upload-artifact@v1
+      with:
+        name: docker-cache-b
+        path: docker-cache-b
