@@ -17,7 +17,7 @@ RUN --mount=type=cache,target=/tmp/ccache \
     --mount=type=bind,source=ccache,target=/tmp/ccache_from \
     export CCACHE_DIR=/tmp/ccache && \
     export DOWNLOADS_DIR=/tmp/downloads && \
-    if [ -f /tmp/ccache_from/ccache.tar.gz ] ; then cd /tmp/ccache && tar xf /tmp/ccache_from/ccache.tar.gz ; fi && \
+    if [ -f /tmp/ccache_from/ccache.tar.gz ] ; then cd /tmp/ccache && tar xf /tmp/ccache_from/ccache.tar.gz && cd - ; fi && \
     if [ ! -f $DOWNLOADS_DIR/Python-3.7.3.tgz ] ; then curl --location https://www.python.org/ftp/python/3.7.3/Python-3.7.3.tgz -o $DOWNLOADS_DIR/Python-3.7.3.tgz ; fi && \
     tar xf $DOWNLOADS_DIR/Python-3.7.3.tgz && \
     cd Python-3.7.3 && \
