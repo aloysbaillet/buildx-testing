@@ -23,7 +23,9 @@ jobs:
       run: |
         curl --location https://github.com/aloysbaillet/buildx-testing/suites/244631830/artifacts/67804 -o docker-cache.zip
         unzip docker-cache.zip
-        mkdir ccache
+        curl --location https://github.com/aloysbaillet/buildx-testing/suites/246317487/artifacts/72270 -o ccache.zip
+        unzip ccache.zip
+        tar xf ccache/ccache.tar.gz
         # buildx-testing-image-a
         docker buildx build \
           . \

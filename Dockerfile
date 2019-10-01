@@ -39,10 +39,9 @@ COPY --from=buildx-testing-image-a-builder /tmp/ccache.tar.gz /ccache/ccache.tar
 ################### buildx-testing-image-a ###################
 FROM alpine as buildx-testing-image-a
 
-ENV PATH /usr/local/bin:${PATH}
 COPY --from=buildx-testing-image-a-builder /usr/local/ /usr/local/
 
 ################### buildx-testing-image-b ###################
 FROM buildx-testing-image-a as buildx-testing-image-b
 
-RUN python --version
+RUN /usr/local/bin/python --version
