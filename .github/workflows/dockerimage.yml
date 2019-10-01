@@ -23,6 +23,7 @@ jobs:
       run: |
         curl --location https://github.com/aloysbaillet/buildx-testing/suites/244631830/artifacts/67804 -o docker-cache.zip
         unzip docker-cache.zip
+        mkdir ccache
         # buildx-testing-image-a
         docker buildx build \
           . \
@@ -74,6 +75,7 @@ jobs:
       name: Run Buildx
       run: |
         # buildx-testing-image-b
+        mkdir ccache
         docker buildx build \
           . \
           -t aloysbaillet/buildx-testing-image-b:0 \
