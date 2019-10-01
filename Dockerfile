@@ -41,7 +41,8 @@ FROM alpine as buildx-testing-image-a
 
 COPY --from=buildx-testing-image-a-builder /usr/local/ /usr/local/
 
+
 ################### buildx-testing-image-b ###################
 FROM buildx-testing-image-a as buildx-testing-image-b
 
-RUN /usr/local/bin/python --version
+RUN /usr/local/bin/python3 --version

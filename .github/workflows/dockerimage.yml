@@ -78,6 +78,7 @@ jobs:
       run: |
         # buildx-testing-image-b
         mkdir ccache
+        ls -la docker-cache-a
         docker buildx build \
           . \
           -t aloysbaillet/buildx-testing-image-b:0 \
