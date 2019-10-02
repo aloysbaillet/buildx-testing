@@ -19,10 +19,20 @@ jobs:
       with:
         version: latest
     -
-      name: Run Buildx
+      name: Restore BuildKit Instance
       run: |
         docker buildx create --name cacheable --use
-        mkdir buildkit-cache-a
+        docker buildx inspect --bootstrap
+        docker buildx stop
+        curl --location https://github.com/aloysbaillet/buildx-testing/suites/248062810/artifacts/76572 -o cache.zip
+        unzip cache.zip
+        docker run --rm \
+          --volumes-from buildx_buildkit_cacheable0 \
+          -v $(pwd)/buildkit-cache-a:/backup \
+          alpine /bin/sh -c "cd / && tar xf /backup/backup.tar.gz"
+    -
+      name: Run Buildx
+      run: |
         # buildx-testing-image-a
         docker buildx build \
           . \
@@ -91,5 +101,5 @@ jobs:
       name: Upload docker-cache
       uses: actions/upload-artifact@v1
       with:
-        name: docker-cache-b
-        path: docker-cache-b
+        name: buildkit-cache-b
+        path: buildkit-cache-b
