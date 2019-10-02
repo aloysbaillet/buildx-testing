@@ -14,21 +14,17 @@ ENV PATH /usr/local/bin:${PATH}
 
 RUN --mount=type=cache,target=/tmp/ccache \
     --mount=type=cache,target=/tmp/downloads \
-    --mount=type=bind,source=ccache,target=/tmp/ccache_from \
     export CCACHE_DIR=/tmp/ccache && \
     export DOWNLOADS_DIR=/tmp/downloads && \
-    if [ -f /tmp/ccache_from/ccache.tar.gz ] ; then cd /tmp/ccache && tar xf /tmp/ccache_from/ccache.tar.gz && cd - ; fi && \
     if [ ! -f $DOWNLOADS_DIR/Python-3.7.3.tgz ] ; then curl --location https://www.python.org/ftp/python/3.7.3/Python-3.7.3.tgz -o $DOWNLOADS_DIR/Python-3.7.3.tgz ; fi && \
     tar xf $DOWNLOADS_DIR/Python-3.7.3.tgz && \
     cd Python-3.7.3 && \
     ./configure \
         --prefix=/usr/local \
-        --enable-unicode=ucs4 \
         --enable-shared && \
     make -j4 && \
     make install && \
-    ccache --show-stats && \
-    tar cfz /tmp/ccache.tar.gz /tmp/ccache
+    ccache --show-stats
 
 ################### buildx-testing-image-a-ccache ###################
 FROM scratch as buildx-testing-image-a-ccache

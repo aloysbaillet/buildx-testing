@@ -21,37 +21,24 @@ jobs:
     -
       name: Run Buildx
       run: |
-        curl --location https://github.com/aloysbaillet/buildx-testing/suites/244631830/artifacts/67804 -o docker-cache.zip
-        unzip docker-cache.zip
-        curl --location https://github.com/aloysbaillet/buildx-testing/suites/246317487/artifacts/72270 -o ccache.zip
-        unzip ccache.zip
-        tar xf ccache/ccache.tar.gz
+        docker buildx create --name cacheable --use
+        mkdir buildkit-cache-a
         # buildx-testing-image-a
         docker buildx build \
           . \
           -t aloysbaillet/buildx-testing-image-a:0 \
           --target=buildx-testing-image-a \
-          --cache-from=type=local,src=docker-cache \
-          --cache-to=type=local,mode=max,dest=docker-cache-a \
           --load
-        # buildx-testing-image-a-ccache
-        docker buildx build \
-          . \
-          --target=buildx-testing-image-a-ccache \
-          --platform=local \
-          -o .
+        docker run --rm \
+          --volumes-from buildx_buildkit_cacheable0 \
+          -v $(pwd)/buildkit-cache-a:/backup \
+          alpine /bin/sh -c "cd / && tar cf /backup/backup.tar.gz /var/lib/buildkit"
     -
       name: Upload docker-cache
       uses: actions/upload-artifact@v1
       with:
-        name: docker-cache-a
-        path: docker-cache-a
-    -
-      name: Upload ccache
-      uses: actions/upload-artifact@v1
-      with:
-        name: ccache
-        path: ccache/ccache.tar.gz
+        name: buildkit-cache-a
+        path: buildkit-cache-a
 
   build_imageB:
  
@@ -72,20 +59,34 @@ jobs:
       name: Download docker cache
       uses: actions/download-artifact@v1
       with:
-        name: docker-cache-a
+        name: buildkit-cache-a
+    -
+      name: Restore BuildKit Instance
+      run: |
+        docker buildx create --name cacheable --use
+        docker buildx inspect --bootstrap
+        docker buildx stop
+        docker run --rm \
+          --volumes-from buildx_buildkit_cacheable0 \
+          -v $(pwd)/buildkit-cache-a:/backup \
+          alpine /bin/sh -c "cd / && tar xf /backup/backup.tar.gz"
     -
       name: Run Buildx
       run: |
         # buildx-testing-image-b
-        mkdir ccache
-        ls -la docker-cache-a
         docker buildx build \
           . \
           -t aloysbaillet/buildx-testing-image-b:0 \
           --target=buildx-testing-image-b \
-          --cache-from=type=local,src=docker-cache-a \
-          --cache-to=type=local,mode=max,dest=docker-cache-b
-          --load
+          --load        
+    -
+      name: Save new BuildKit instance
+      run: |
+        mkdir buildkit-cache-b
+        docker run --rm \
+          --volumes-from buildx_buildkit_cacheable0 \
+          -v $(pwd)/buildkit-cache-b:/backup \
+          alpine /bin/sh -c "cd / && tar cf /backup/backup.tar.gz /var/lib/buildkit"
     -
       name: Upload docker-cache
       uses: actions/upload-artifact@v1
