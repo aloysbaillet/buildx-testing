@@ -67,7 +67,7 @@ jobs:
         version: latest
     -
       name: Download docker cache
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4.1.7
       with:
         name: buildkit-cache-a
     -
